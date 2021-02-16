@@ -16,6 +16,10 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QVariant>
+#include <QRadioButton>
+#include <QAbstractButton>
+#include <QCheckBox>
+#include <QSpinBox>
 
 #include "wizard/owncloudwizardcommon.h"
 #include "theme.h"
@@ -66,6 +70,78 @@ namespace WizardCommon {
         sizePolicy.setRetainSizeWhenHidden(true);
         errorLabel->setSizePolicy(sizePolicy);
         errorLabel->setVisible(false);
+    }
+
+    void customizeSpinBoxStyle(QSpinBox *spinBox)
+    {
+        auto spinBoxPalette = spinBox->palette();
+#ifdef Q_OS_WIN
+        // Windows always uses a SpinBox with a white background but we change the color of the text so we need
+        // to change the text color here
+        spinBoxPalette.setColor(QPalette::Text, Qt::black);
+        QColor colorTextDisabled(spinBoxPalette.color(QPalette::Text));
+        colorTextDisabled.setAlpha(128);
+        spinBoxPalette.setColor(QPalette::Disabled, QPalette::Text, colorTextDisabled);
+#endif
+#ifdef Q_OS_LINUX
+        spinBoxPalette.setColor(QPalette::WindowText, Theme::instance()->wizardHeaderBackgroundColor());
+        QColor colorWindowTextDisabled(spinBoxPalette.color(QPalette::WindowText));
+        colorWindowTextDisabled.setAlpha(128);
+        spinBoxPalette.setColor(QPalette::Disabled, QPalette::WindowText, colorWindowTextDisabled);
+#endif
+        spinBox->setPalette(spinBoxPalette);
+    }
+
+    void customizeSecondaryButtonStyle(QAbstractButton *button)
+    {
+#ifdef Q_OS_LINUX
+        // Only style push buttons on Linux as on other platforms we are unable to style the background color
+        auto pushButtonPalette = button->palette();
+        pushButtonPalette.setColor(QPalette::ButtonText, Theme::instance()->wizardHeaderTitleColor());
+        pushButtonPalette.setColor(QPalette::Button, Theme::instance()->wizardHeaderBackgroundColor());
+        button->setPalette(pushButtonPalette);
+#else
+        Q_UNUSED(button);
+#endif
+    }
+
+    void customizeLinkButtonStyle(QAbstractButton *button)
+    {
+        auto buttonPalette = button->palette();
+        buttonPalette.setColor(QPalette::ButtonText, Theme::instance()->wizardHeaderTitleColor());
+        button->setPalette(buttonPalette);
+    }
+
+    void customizePrimaryButtonStyle(QAbstractButton *button)
+    {
+#ifdef Q_OS_LINUX
+        // Only style push buttons on Linux as on other platforms we are unable to style the background color
+        auto pushButtonPalette = button->palette();
+
+        pushButtonPalette.setColor(QPalette::Button, Theme::instance()->wizardHeaderTitleColor());
+        auto disabledButtonColor = pushButtonPalette.color(QPalette::Button);
+        disabledButtonColor.setAlpha(128);
+        pushButtonPalette.setColor(QPalette::Disabled, QPalette::Button, disabledButtonColor);
+
+        pushButtonPalette.setColor(QPalette::ButtonText, Theme::instance()->wizardHeaderBackgroundColor());
+        auto disabledButtonTextColor = pushButtonPalette.color(QPalette::ButtonText);
+        disabledButtonTextColor.setAlpha(128);
+        pushButtonPalette.setColor(QPalette::Disabled, QPalette::ButtonText, disabledButtonTextColor);
+
+        button->setPalette(pushButtonPalette);
+#else
+        Q_UNUSED(button);
+#endif
+    }
+
+    void customizeHintLabel(QLabel *label)
+    {
+        QColor textColor(Theme::instance()->wizardHeaderTitleColor());
+        textColor.setAlpha(128);
+
+        auto palette = label->palette();
+        palette.setColor(QPalette::Text, textColor);
+        label->setPalette(palette);
     }
 
 } // ns WizardCommon
