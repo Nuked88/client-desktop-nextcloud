@@ -646,6 +646,41 @@ bool Utility::isConflictFile(const QString &name)
     return false;
 }
 
+QString Utility::getConflictFilename(const QString &folderPath, const QString &relativeFilePath)
+{
+    if (isConflictFile(relativeFilePath)) {
+        return relativeFilePath;
+    }
+    QStringList filters;
+    filters << QLatin1String("*_conflict-*")
+            << QLatin1String("*(conflicted copy*");
+
+    QDir directory(folderPath);
+    directory.setNameFilters(filters);
+    const auto fileList = directory.entryList(filters, QDir::Files);
+
+    if (fileList.size() == 0) {
+        // There is no conflict file
+        return relativeFilePath;
+    } else if (fileList.size() == 1) {
+        // Found a conflicted copy
+        return fileList[0];
+    }
+
+    qWarning(lcUtility) << "Found more than one conflicted copy for file" << relativeFilePath;
+
+    return fileList[0];
+}
+
+QString Utility::getOriginalFilename(const QString &filepath)
+{
+    if (!isConflictFile(filepath)) {
+        return filepath;
+    }
+
+    return QLatin1String(Utility::conflictFileBaseNameFromPattern(filepath.toLocal8Bit()));
+}
+
 QByteArray Utility::conflictFileBaseNameFromPattern(const QByteArray &conflictName)
 {
     // This function must be able to deal with conflict files for conflict files.

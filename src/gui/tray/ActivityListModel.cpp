@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (C) by Klaas Freitag <freitag@owncloud.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -433,11 +433,12 @@ void ActivityListModel::triggerDefaultAction(int activityIndex)
     if (activity._status == SyncFileItem::Conflict) {
         Q_ASSERT(!activity._file.isEmpty());
         Q_ASSERT(!activity._folder.isEmpty());
-        Q_ASSERT(Utility::isConflictFile(activity._file));
+        Q_ASSERT(!Utility::isConflictFile(activity._file));
+        Q_ASSERT(Utility::isConflictFile(activity._conflictFile));
 
         const auto folder = FolderMan::instance()->folder(activity._folder);
 
-        const auto conflictedRelativePath = activity._file;
+        const auto conflictedRelativePath = activity._conflictFile;
         const auto baseRelativePath = folder->journalDb()->conflictFileBaseName(conflictedRelativePath.toUtf8());
 
         const auto dir = QDir(folder->path());

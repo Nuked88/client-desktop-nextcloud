@@ -236,6 +236,24 @@ private slots:
         CHECK_NORMALIZE_ETAG("\"foo\"-gzip", "foo");
         CHECK_NORMALIZE_ETAG("\"foo-gzip\"", "foo");
     }
+
+    void testGetOriginalFilename_originalFilenameGiven_returnOriginalFilename()
+    {
+        QLatin1String file("myfile.txt");
+
+        const auto result = OCC::Utility::getOriginalFilename(file);
+
+        QCOMPARE(result, file);
+    }
+
+    void testGetOriginalFilename_conflictedCopyFilenameGiven_returnOriginalFilename()
+    {
+        QLatin1String file("myfile (conflicted copy 2021-04-10 093612).txt");
+
+        const auto result = OCC::Utility::getOriginalFilename(file);
+
+        QCOMPARE(result, "myfile.txt");
+    }
 };
 
 QTEST_GUILESS_MAIN(TestUtility)

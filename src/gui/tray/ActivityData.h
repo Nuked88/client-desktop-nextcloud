@@ -69,6 +69,7 @@ public:
     QString _message;
     QString _folder;
     QString _file;
+    QString _conflictFile;
     QUrl _link;
     QDateTime _dateTime;
     QString _accName;

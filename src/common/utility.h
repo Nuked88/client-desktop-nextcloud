@@ -226,6 +226,10 @@ namespace Utility {
     OCSYNC_EXPORT bool isConflictFile(const char *name);
     OCSYNC_EXPORT bool isConflictFile(const QString &name);
 
+    OCSYNC_EXPORT QString getConflictFilename(const QString &folderPath, const QString &relativeFilePath);
+
+    OCSYNC_EXPORT QString getOriginalFilename(const QString &filepath);
+
     /** Find the base name for a conflict file name, using name pattern only
      *
      * Will return an empty string if it's not a conflict file.

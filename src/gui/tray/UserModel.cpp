@@ -431,7 +431,8 @@ void User::slotItemCompleted(const QString &folder, const SyncFileItemPtr &item)
         activity._message = item->_originalFile;
         activity._link = folderInstance->accountState()->account()->url();
         activity._accName = folderInstance->accountState()->account()->displayName();
-        activity._file = item->_file;
+        activity._file = Utility::getOriginalFilename(item->_file);
+        activity._conflictFile = Utility::getConflictFilename(folderInstance->path(), item->_file);
         activity._folder = folder;
         activity._fileAction = "";
 
@@ -1018,5 +1019,4 @@ QHash<int, QByteArray> UserAppsModel::roleNames() const
     roles[IconUrlRole] = "appIconUrl";
     return roles;
 }
-
 }
