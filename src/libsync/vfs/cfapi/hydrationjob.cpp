@@ -23,7 +23,7 @@
 Q_LOGGING_CATEGORY(lcHydration, "nextcloud.sync.vfs.hydrationjob", QtInfoMsg)
 
 OCC::HydrationJob::HydrationJob(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), _buffer(&_bufferData)
 {
     connect(this, &HydrationJob::finished, this, &HydrationJob::deleteLater);
 }
@@ -133,12 +133,16 @@ void OCC::HydrationJob::emitFinished(Status status)
 
 void OCC::HydrationJob::onNewConnection()
 {
+    if (_socket) {
+        return;
+    }
     Q_ASSERT(!_socket);
     Q_ASSERT(!_job);
 
     qCInfo(lcHydration) << "Got new connection starting GETFileJob" << _requestId << _folderPath;
     _socket = _server->nextPendingConnection();
-    _job = new GETFileJob(_account, _remotePath + _folderPath, _socket, {}, {}, 0, this);
+    bool res = _buffer.open(QIODevice::WriteOnly);
+    _job = new GETFileJob(_account, _remotePath + _folderPath, &_buffer, {}, {}, 0, this);
     connect(_job, &GETFileJob::finishedSignal, this, &HydrationJob::onGetFinished);
     _job->start();
 }
@@ -152,6 +156,8 @@ void OCC::HydrationJob::onGetFinished()
         return;
     }
 
+    _buffer.close();
+
     SyncJournalFileRecord record;
     _journal->getFileRecord(_folderPath, &record);
     Q_ASSERT(record.isValid());
@@ -160,6 +166,10 @@ void OCC::HydrationJob::onGetFinished()
         emitFinished(Error);
         return;
     }
+
+    bool res = _buffer.open(QIODevice::ReadOnly);
+
+    _socket->write(_buffer.data());
 
     record._type = ItemTypeFile;
     _journal->setFileRecord(record);

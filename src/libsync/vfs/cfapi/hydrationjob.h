@@ -79,6 +79,8 @@ private:
     QLocalSocket *_socket = nullptr;
     GETFileJob *_job = nullptr;
     Status _status = Success;
+    QByteArray _bufferData;
+    QBuffer _buffer;
 };
 
 } // namespace OCC
