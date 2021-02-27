@@ -187,6 +187,9 @@ GeneralSettings::GeneralSettings(QWidget *parent)
     connect(_ui->newFolderLimitCheckBox, &QAbstractButton::toggled, this, &GeneralSettings::saveMiscSettings);
     connect(_ui->newFolderLimitSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &GeneralSettings::saveMiscSettings);
     connect(_ui->newExternalStorage, &QAbstractButton::toggled, this, &GeneralSettings::saveMiscSettings);
+    //added client-side file size limit for upload
+    connect(_ui->newFileLimitCheckBox, &QAbstractButton::toggled, this, &GeneralSettings::saveMiscSettings);
+    connect(_ui->newFileLimitSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &GeneralSettings::saveMiscSettings);
 
 #ifndef WITH_CRASHREPORTER
     _ui->crashreporterCheckBox->setVisible(false);
@@ -250,6 +253,9 @@ void GeneralSettings::loadMiscSettings()
     _ui->serverNotificationsCheckBox->setChecked(cfgFile.optionalServerNotifications());
     _ui->showInExplorerNavigationPaneCheckBox->setChecked(cfgFile.showInExplorerNavigationPane());
     _ui->crashreporterCheckBox->setChecked(cfgFile.crashReporter());
+    auto newFileLimit = cfgFile.newBigFileSizeLimit();
+    _ui->newFileLimitCheckBox->setChecked(newFileLimit.first);
+    _ui->newFileLimitSpinBox->setValue(newFileLimit.second);
     auto newFolderLimit = cfgFile.newBigFolderSizeLimit();
     _ui->newFolderLimitCheckBox->setChecked(newFolderLimit.first);
     _ui->newFolderLimitSpinBox->setValue(newFolderLimit.second);
@@ -375,6 +381,9 @@ void GeneralSettings::saveMiscSettings()
     cfgFile.setMonoIcons(isChecked);
     Theme::instance()->setSystrayUseMonoIcons(isChecked);
     cfgFile.setCrashReporter(_ui->crashreporterCheckBox->isChecked());
+
+    cfgFile.setNewBigFileSizeLimit(_ui->newFileLimitCheckBox->isChecked(),
+        _ui->newFileLimitSpinBox->value());
 
     cfgFile.setNewBigFolderSizeLimit(_ui->newFolderLimitCheckBox->isChecked(),
         _ui->newFolderLimitSpinBox->value());

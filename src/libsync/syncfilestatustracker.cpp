@@ -19,7 +19,7 @@
 #include "common/syncjournalfilerecord.h"
 #include "common/asserts.h"
 #include "csync_exclude.h"
-
+#include "configfile.h"
 #include <QLoggingCategory>
 
 namespace OCC {
@@ -124,6 +124,11 @@ SyncFileStatusTracker::SyncFileStatusTracker(SyncEngine *syncEngine)
 
 SyncFileStatus SyncFileStatusTracker::fileStatus(const QString &relativePath)
 {
+    ConfigFile cfgFile;
+
+    auto newFileLimit = cfgFile.newBigFileSizeLimit();
+    int maxSize = newFileLimit.first ? newFileLimit.second * 1000LL * 1000LL : -1; // convert from MB to B
+
     ASSERT(!relativePath.endsWith(QLatin1Char('/')));
 
     if (relativePath.isEmpty()) {
@@ -141,7 +146,8 @@ SyncFileStatus SyncFileStatusTracker::fileStatus(const QString &relativePath)
     // are now available via slotAddSilentlyExcluded().
     if (_syncEngine->excludedFiles().isExcluded(_syncEngine->localPath() + relativePath,
             _syncEngine->localPath(),
-            _syncEngine->ignoreHiddenFiles())) {
+            _syncEngine->ignoreHiddenFiles(),
+            maxSize)) {
         return SyncFileStatus::StatusExcluded;
     }
 

@@ -20,6 +20,7 @@
 
 #include "config_csync.h"
 
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -37,6 +38,9 @@
 #include <QFile>
 #include <QDir>
 
+#include <QtCore/QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcCSyncVIOLocal2, "nextcloud.sync.csync.vio_local", QtInfoMsg)
 
 /** Expands C-like escape sequences (in place)
  */
@@ -373,20 +377,24 @@ bool ExcludedFiles::versionDirectiveKeepNextLine(const QByteArray &directive) co
 bool ExcludedFiles::isExcluded(
     const QString &filePath,
     const QString &basePath,
-    bool excludeHidden) const
+    bool excludeHidden,
+    int maxSize) const
 {
     if (!filePath.startsWith(basePath, Utility::fsCasePreserving() ? Qt::CaseInsensitive : Qt::CaseSensitive)) {
         // Mark paths we're not responsible for as excluded...
         return true;
     }
-
+     QString path = filePath;
+     QFileInfo fi(path);
     //TODO this seems a waste, hidden files are ignored before hitting this function it seems
     if (excludeHidden) {
-        QString path = filePath;
+        
+        
         // Check all path subcomponents, but to *not* check the base path:
         // We do want to be able to sync with a hidden folder as the target.
         while (path.size() > basePath.size()) {
-            QFileInfo fi(path);
+        
+            
             if (fi.fileName() != QStringLiteral(".sync-exclude.lst")
                 && (fi.isHidden() || fi.fileName().startsWith(QLatin1Char('.')))) {
                 return true;
@@ -397,7 +405,13 @@ bool ExcludedFiles::isExcluded(
         }
     }
 
-    QFileInfo fi(filePath);
+    //Not upload file if size is over the limit in settings
+    if (fi.size() > maxSize && maxSize != -1) {
+    //  qCDebug(lcCSyncVIOLocal2) << "Skipped big file. Size: " << fi.size();
+        return true;
+    }
+
+ 
     ItemType type = ItemTypeFile;
     if (fi.isDir()) {
         type = ItemTypeDirectory;

@@ -29,11 +29,13 @@
 
 #include "windows.h"
 
+
 #include "c_private.h"
 #include "c_lib.h"
 #include "csync.h"
 #include "vio/csync_vio_local.h"
 #include "common/filesystembase.h"
+
 
 #include <QtCore/QLoggingCategory>
 
@@ -172,12 +174,31 @@ std::unique_ptr<csync_file_stat_t> csync_vio_local_readdir(csync_vio_handle_t *h
     }
 
     file_stat->size = (handle->ffd.nFileSizeHigh * ((int64_t)(MAXDWORD)+1)) + handle->ffd.nFileSizeLow;
+    /*int nSize = handle->ffd.nFileSizeLow;
+    
+    
+    //LOAD LIMIT SIZE FORM CONFIG
+    auto newFileLimit = cfgFile.newBigFileSizeLimit();
+    
+    if(_newFileLimit.first)
+
+        if (nSize > newFileLimit.second*1024*1024) {
+        // Will get excluded by _csync_detect_update.
+        file_stat->type = ItemTypeSkip;
+        qCDebug(lcCSyncVIOLocal) << "Skipped file bigger than:" << nSize;
+        }
+
+    )
+    */
+   
+
     file_stat->modtime = FileTimeToUnixTime(&handle->ffd.ftLastWriteTime, &rem);
 
     std::wstring fullPath;
     fullPath.reserve(handle->path.size() + std::wcslen(handle->ffd.cFileName));
     fullPath += handle->path.toStdWString(); // path always ends with '\', by construction
     fullPath += handle->ffd.cFileName;
+
 
     if (_csync_vio_local_stat_mb(fullPath.data(), file_stat.get()) < 0) {
         // Will get excluded by _csync_detect_update.
