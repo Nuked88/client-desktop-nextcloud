@@ -6,7 +6,8 @@ with your computer.
 <p align="center">
     <img src="https://nextcloud.com/wp-content/themes/next/assets/img/clients/desktop/macsettings.png?x16328" alt="Desktop Client on Mac OS]">
 </p>
-## :blue_heart: :tada: My Changes :heart: :heart: :heart:
+
+## :heart: :heart: :heart: My Changes :heart: :heart: :heart:
 
 I decided to implement a new feature where is possible to choose the max size of the upload file by client-side.
 Just go in settings and you will find "Ignore file larger than"
