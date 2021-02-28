@@ -38,9 +38,9 @@
 #include <QFile>
 #include <QDir>
 
-#include <QtCore/QLoggingCategory>
+//#include <QtCore/QLoggingCategory>
 
-Q_LOGGING_CATEGORY(lcCSyncVIOLocal2, "nextcloud.sync.csync.vio_local", QtInfoMsg)
+//Q_LOGGING_CATEGORY(lcCSyncVIOLocal2, "nextcloud.sync.csync.vio_local", QtInfoMsg)
 
 /** Expands C-like escape sequences (in place)
  */
